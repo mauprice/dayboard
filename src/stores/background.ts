@@ -95,7 +95,17 @@ export const useBackgroundStore = defineStore('background', () => {
   const unsplashError = ref<string | null>(null);
 
   async function enableUnsplash(): Promise<boolean> {
-    return browser.permissions.request({ origins: UNSPLASH_ORIGINS });
+    try {
+      return await browser.permissions.request({ origins: UNSPLASH_ORIGINS });
+    } catch (err) {
+      // permissions.request() rejects (rather than resolving false) if the
+      // browser refuses the request outright — e.g. called outside a direct
+      // user gesture, or the origins aren't in the manifest's
+      // optional_host_permissions. Surface it instead of swallowing it.
+      console.error('[dayboard] Unsplash permission request failed', err);
+      unsplashError.value = err instanceof Error ? `Permission request failed: ${err.message}` : 'Permission request failed.';
+      return false;
+    }
   }
 
   async function refreshUnsplash() {
@@ -157,9 +167,12 @@ export const useBackgroundStore = defineStore('background', () => {
 
   async function setSource(source: typeof settings.value.source) {
     if (source === 'unsplash' && settings.value.source !== 'unsplash') {
+      unsplashError.value = null;
       const granted = await enableUnsplash();
       if (!granted) {
-        unsplashError.value = 'Permission to reach Unsplash was not granted, so the source stayed unchanged.';
+        // enableUnsplash() already set a more specific message if it threw;
+        // only set the generic one if it resolved false without explaining why.
+        unsplashError.value ??= 'Permission to reach Unsplash was not granted, so the source stayed unchanged.';
         return;
       }
     }
