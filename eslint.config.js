@@ -7,4 +7,10 @@ export default defineConfigWithVueTs(
   pluginVue.configs['flat/recommended'],
   vueTsConfigs.recommended,
   eslintConfigPrettier,
+  {
+    rules: {
+      // BRIEF.md §7 specifies single-word component names (Clock, Greeting, Focus, ...).
+      'vue/multi-word-component-names': 'off',
+    },
+  },
 );
