@@ -36,4 +36,6 @@ pnpm format     # Prettier (writes)
 
 ## Status
 
-Phase 4 (quotes, weather, search, links) complete — see §8 of [BRIEF.md](BRIEF.md) for the full phase plan.
+Phase 5 (Settings panel, Export/Import, Unsplash, custom uploads) complete — see §8 of
+[BRIEF.md](BRIEF.md) for the full phase plan. To add real background photos, drop image
+files into `src/assets/backgrounds/` and rebuild (see that folder's README).

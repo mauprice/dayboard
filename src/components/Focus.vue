@@ -2,8 +2,10 @@
 import { computed, ref } from 'vue';
 import { useFocusStore } from '@/stores/focus';
 import { useMidnight } from '@/composables/useMidnight';
+import { useTextTheme } from '@/composables/useTextTheme';
 
 const focusStore = useFocusStore();
+const { isLight } = useTextTheme();
 const { today } = useMidnight();
 const draft = ref('');
 
@@ -21,9 +23,11 @@ function submit() {
 </script>
 
 <template>
-  <div class="flex flex-col items-center gap-2 text-white">
+  <div class="flex flex-col items-center gap-2" :class="isLight ? 'text-white' : 'text-neutral-900'">
     <form v-if="!hasFocus" class="flex w-full max-w-md flex-col items-center gap-2" @submit.prevent="submit">
-      <label for="focus-input" class="text-sm text-white/70">What is your main focus for today?</label>
+      <label for="focus-input" class="text-sm" :class="isLight ? 'text-white/70' : 'text-neutral-900/70'"
+        >What is your main focus for today?</label
+      >
       <input
         id="focus-input"
         v-model="draft"

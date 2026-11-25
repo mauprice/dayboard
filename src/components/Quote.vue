@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { QUOTES } from '@/data/quotes';
 import { useMidnight } from '@/composables/useMidnight';
 import { useSettingsStore } from '@/stores/settings';
+import { useQuotesStore } from '@/stores/quotes';
+import { useTextTheme } from '@/composables/useTextTheme';
 
 const settings = useSettingsStore();
+const quotesStore = useQuotesStore();
+const { isLight } = useTextTheme();
 const { today } = useMidnight();
 
 function hashDateKey(key: string): number {
@@ -14,17 +17,19 @@ function hashDateKey(key: string): number {
 }
 
 // Stable for the lifetime of this tab, used only in 'tab' quote mode.
-const tabIndex = Math.floor(Math.random() * QUOTES.length);
+const tabSeed = Math.floor(Math.random() * 100_000);
 
 const quote = computed(() => {
-  const index = settings.settings.quoteMode === 'tab' ? tabIndex : hashDateKey(today.value) % QUOTES.length;
-  return QUOTES[index % QUOTES.length]!;
+  const pool = quotesStore.pool;
+  const index =
+    settings.settings.quoteMode === 'tab' ? tabSeed % pool.length : hashDateKey(today.value) % pool.length;
+  return pool[index]!;
 });
 </script>
 
 <template>
-  <figure class="max-w-lg px-4 text-center text-white/80">
+  <figure class="max-w-lg px-4 text-center" :class="isLight ? 'text-white/80' : 'text-neutral-900/80'">
     <blockquote class="text-sm italic drop-shadow">"{{ quote.text }}"</blockquote>
-    <figcaption class="mt-1 text-xs text-white/50">— {{ quote.author }}</figcaption>
+    <figcaption class="mt-1 text-xs opacity-70">— {{ quote.author }}</figcaption>
   </figure>
 </template>

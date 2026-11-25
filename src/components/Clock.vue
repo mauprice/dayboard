@@ -2,8 +2,10 @@
 import { computed } from 'vue';
 import { useNow } from '@/composables/useNow';
 import { useSettingsStore } from '@/stores/settings';
+import { useTextTheme } from '@/composables/useTextTheme';
 
 const settings = useSettingsStore();
+const { isLight } = useTextTheme();
 const now = useNow(1000);
 
 const timeParts = computed(() => {
@@ -25,7 +27,8 @@ const timeParts = computed(() => {
 
 <template>
   <div
-    class="flex items-baseline justify-center gap-2 text-[clamp(3rem,10vw,8rem)] font-light leading-none text-white drop-shadow-lg"
+    class="flex items-baseline justify-center gap-2 text-[clamp(3rem,10vw,8rem)] font-light leading-none drop-shadow-lg"
+    :class="isLight ? 'text-white' : 'text-neutral-900'"
   >
     <span>{{ timeParts.hours }}:{{ timeParts.minutes }}</span>
     <span v-if="settings.settings.showSeconds" class="text-[0.4em] opacity-70">:{{ timeParts.seconds }}</span>

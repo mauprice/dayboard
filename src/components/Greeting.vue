@@ -2,8 +2,10 @@
 import { computed, ref } from 'vue';
 import { useNow } from '@/composables/useNow';
 import { useSettingsStore } from '@/stores/settings';
+import { useTextTheme } from '@/composables/useTextTheme';
 
 const settings = useSettingsStore();
+const { isLight } = useTextTheme();
 const now = useNow(60_000);
 const editing = ref(false);
 const draft = ref('');
@@ -29,7 +31,7 @@ function commit() {
 </script>
 
 <template>
-  <div class="text-center text-xl text-white/90 drop-shadow">
+  <div class="text-center text-xl drop-shadow" :class="isLight ? 'text-white/90' : 'text-neutral-900/90'">
     <input
       v-if="editing"
       v-model="draft"

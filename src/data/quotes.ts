@@ -1,11 +1,8 @@
-export interface QuoteEntry {
-  text: string;
-  author: string;
-}
+import type { QuoteEntry } from '@/types/storage';
 
 // Starter set of public-domain quotes (historical figures, no modern
-// copyrighted material). User-editable custom quotes are layered on top of
-// this list once the Settings panel (Phase 5) lands.
+// copyrighted material). User-editable custom quotes (src/stores/quotes.ts)
+// are layered on top of this list.
 export const QUOTES: QuoteEntry[] = [
   { text: 'You have power over your mind — not outside events. Realize this, and you will find strength.', author: 'Marcus Aurelius' },
   { text: 'Waste no more time arguing about what a good man should be. Be one.', author: 'Marcus Aurelius' },

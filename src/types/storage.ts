@@ -4,6 +4,8 @@ export const FOCUS_SCHEMA_VERSION = 2 as const;
 export const TODO_SCHEMA_VERSION = 1 as const;
 export const WEATHER_SCHEMA_VERSION = 1 as const;
 export const LINKS_SCHEMA_VERSION = 1 as const;
+export const BACKGROUND_SCHEMA_VERSION = 1 as const;
+export const QUOTES_SCHEMA_VERSION = 1 as const;
 
 export const MAX_FOCUS_HISTORY = 60;
 
@@ -11,17 +13,22 @@ export type ClockFormat = '12h' | '24h';
 export type RotationInterval = 'tab' | 'hourly' | 'daily';
 export type QuoteMode = 'daily' | 'tab';
 export type SearchEngine = 'google' | 'bing' | 'duckduckgo' | 'brave' | 'custom';
+export type TextTheme = 'auto' | 'light' | 'dark';
+export type FontFamily = 'sans' | 'serif' | 'mono';
+export type WidgetKey = 'clock' | 'greeting' | 'focus' | 'todo' | 'quote' | 'weather' | 'search' | 'links';
 
 export interface SettingsData {
   schemaVersion: typeof SETTINGS_SCHEMA_VERSION;
   name: string;
   clockFormat: ClockFormat;
   showSeconds: boolean;
-  rotationInterval: RotationInterval;
   quoteMode: QuoteMode;
   searchEngine: SearchEngine;
   /** Used when searchEngine === 'custom'; must contain a literal %s placeholder. */
   customSearchTemplate: string;
+  textTheme: TextTheme;
+  fontFamily: FontFamily;
+  widgetVisibility: Record<WidgetKey, boolean>;
 }
 
 export interface OnboardingData {
@@ -89,15 +96,52 @@ export interface LinksData {
   links: LinkItem[];
 }
 
+export type BackgroundSource = 'local' | 'gradient' | 'unsplash' | 'custom';
+export type UnsplashTopic = 'nature' | 'architecture' | 'travel' | 'minimal';
+
+export interface BackgroundSettingsData {
+  schemaVersion: typeof BACKGROUND_SCHEMA_VERSION;
+  source: BackgroundSource;
+  rotationInterval: RotationInterval;
+  unsplashAccessKey: string;
+  unsplashTopic: UnsplashTopic;
+  /** Stable ids: 'local:<path>' | 'custom:<id>' | 'unsplash:<photoId>'. */
+  favouriteIds: string[];
+}
+
+export interface QuoteEntry {
+  text: string;
+  author: string;
+}
+
+export interface QuotesSettingsData {
+  schemaVersion: typeof QUOTES_SCHEMA_VERSION;
+  custom: QuoteEntry[];
+  onlyCustom: boolean;
+}
+
+export const DEFAULT_WIDGET_VISIBILITY: Record<WidgetKey, boolean> = {
+  clock: true,
+  greeting: true,
+  focus: true,
+  todo: true,
+  quote: true,
+  weather: true,
+  search: true,
+  links: true,
+};
+
 export const DEFAULT_SETTINGS: SettingsData = {
   schemaVersion: SETTINGS_SCHEMA_VERSION,
   name: '',
   clockFormat: '24h',
   showSeconds: false,
-  rotationInterval: 'tab',
   quoteMode: 'daily',
   searchEngine: 'google',
   customSearchTemplate: '',
+  textTheme: 'auto',
+  fontFamily: 'sans',
+  widgetVisibility: { ...DEFAULT_WIDGET_VISIBILITY },
 };
 
 export const DEFAULT_WEATHER_SETTINGS: WeatherSettingsData = {
@@ -115,6 +159,21 @@ export const DEFAULT_LINKS: LinksData = {
     { id: 'calendar', label: 'Calendar', url: 'https://calendar.google.com/' },
     { id: 'drive', label: 'Drive', url: 'https://drive.google.com/' },
   ],
+};
+
+export const DEFAULT_BACKGROUND_SETTINGS: BackgroundSettingsData = {
+  schemaVersion: BACKGROUND_SCHEMA_VERSION,
+  source: 'local',
+  rotationInterval: 'tab',
+  unsplashAccessKey: '',
+  unsplashTopic: 'nature',
+  favouriteIds: [],
+};
+
+export const DEFAULT_QUOTES_SETTINGS: QuotesSettingsData = {
+  schemaVersion: QUOTES_SCHEMA_VERSION,
+  custom: [],
+  onlyCustom: false,
 };
 
 export const DEFAULT_ONBOARDING: OnboardingData = {
@@ -144,7 +203,12 @@ export const DEFAULT_TODO_DATA: TodoData = {
 // current one, backfilling fields older schema versions didn't have.
 export function migrateSettings(raw: unknown): SettingsData {
   const data = (raw ?? {}) as Partial<SettingsData>;
-  return { ...DEFAULT_SETTINGS, ...data, schemaVersion: SETTINGS_SCHEMA_VERSION };
+  return {
+    ...DEFAULT_SETTINGS,
+    ...data,
+    widgetVisibility: { ...DEFAULT_WIDGET_VISIBILITY, ...data.widgetVisibility },
+    schemaVersion: SETTINGS_SCHEMA_VERSION,
+  };
 }
 
 export function migrateOnboarding(raw: unknown): OnboardingData {
@@ -200,5 +264,24 @@ export function migrateLinks(raw: unknown): LinksData {
   return {
     schemaVersion: LINKS_SCHEMA_VERSION,
     links: Array.isArray(data.links) ? data.links : DEFAULT_LINKS.links,
+  };
+}
+
+export function migrateBackgroundSettings(raw: unknown): BackgroundSettingsData {
+  const data = (raw ?? {}) as Partial<BackgroundSettingsData>;
+  return {
+    ...DEFAULT_BACKGROUND_SETTINGS,
+    ...data,
+    favouriteIds: Array.isArray(data.favouriteIds) ? data.favouriteIds : [],
+    schemaVersion: BACKGROUND_SCHEMA_VERSION,
+  };
+}
+
+export function migrateQuotesSettings(raw: unknown): QuotesSettingsData {
+  const data = (raw ?? {}) as Partial<QuotesSettingsData>;
+  return {
+    schemaVersion: QUOTES_SCHEMA_VERSION,
+    custom: Array.isArray(data.custom) ? data.custom : [],
+    onlyCustom: Boolean(data.onlyCustom),
   };
 }

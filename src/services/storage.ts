@@ -39,8 +39,10 @@ export function createSyncedStore<T>(
 
   function onChange(callback: (value: T) => void): () => void {
     const listener = (changes: Record<string, { newValue?: unknown }>) => {
-      const change = changes[key];
-      if (change && change.newValue !== undefined) callback(migrate(change.newValue));
+      // Fires on both updates and removals (e.g. storage.clear() for a
+      // Settings "Reset all") — a removal has newValue undefined, which
+      // migrate() turns back into defaults, so reactive state resets too.
+      if (key in changes) callback(migrate(changes[key]?.newValue));
     };
     browser.storage.onChanged.addListener(listener);
     return () => browser.storage.onChanged.removeListener(listener);

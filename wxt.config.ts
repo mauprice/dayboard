@@ -20,7 +20,10 @@ export default defineConfig({
     // Open-Meteo hosts per BRIEF.md §6 (required, no prompt beyond normal install).
     host_permissions: ['https://api.open-meteo.com/*', 'https://geocoding-api.open-meteo.com/*'],
     // 'search' is requested at the moment the user submits a search (§3.8).
+    // The Unsplash hosts are optional per BRIEF.md §6, requested the moment
+    // the user picks Unsplash as their background source (src/stores/background.ts).
     optional_permissions: ['search'],
+    optional_host_permissions: ['https://api.unsplash.com/*', 'https://images.unsplash.com/*'],
     browser_specific_settings: {
       gecko: {
         // TODO(maurice): replace with a real identifier before AMO submission.
