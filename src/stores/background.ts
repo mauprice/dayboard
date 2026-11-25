@@ -158,7 +158,10 @@ export const useBackgroundStore = defineStore('background', () => {
   async function setSource(source: typeof settings.value.source) {
     if (source === 'unsplash' && settings.value.source !== 'unsplash') {
       const granted = await enableUnsplash();
-      if (!granted) return;
+      if (!granted) {
+        unsplashError.value = 'Permission to reach Unsplash was not granted, so the source stayed unchanged.';
+        return;
+      }
     }
     settings.value.source = source;
   }

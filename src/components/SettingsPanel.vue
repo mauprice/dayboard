@@ -10,7 +10,14 @@ import { useWeatherStore } from '@/stores/weather';
 import { addCustomBackground, removeCustomBackground, type CustomBackground } from '@/services/imageCache';
 import { exportAllData, importAllData, resetAllData } from '@/services/backup';
 import { APP_NAME } from '@/constants';
-import type { QuoteEntry, WeatherLocation, WidgetKey } from '@/types/storage';
+import type { BackgroundSource, QuoteEntry, WeatherLocation, WidgetKey } from '@/types/storage';
+
+const SOURCE_OPTIONS: { value: BackgroundSource; label: string }[] = [
+  { value: 'local', label: 'Local (bundled photos)' },
+  { value: 'gradient', label: 'Solid gradient' },
+  { value: 'unsplash', label: 'Unsplash' },
+  { value: 'custom', label: 'Custom uploads' },
+];
 
 const settings = useSettingsStore();
 const background = useBackgroundStore();
@@ -239,42 +246,38 @@ const version = browser.runtime.getManifest().version;
         <section v-if="tab === 'background'" class="space-y-4">
           <div>
             <p class="mb-1 text-xs text-white/60">Source</p>
-            <div class="space-y-1">
-              <label class="flex items-center gap-2">
-                <input
-                  type="radio"
-                  name="bg-source"
-                  :checked="background.settings.source === 'local'"
-                  @change="background.setSource('local')"
-                /> Local (bundled photos)
-              </label>
-              <label class="flex items-center gap-2">
-                <input
-                  type="radio"
-                  name="bg-source"
-                  :checked="background.settings.source === 'gradient'"
-                  @change="background.setSource('gradient')"
-                /> Solid gradient
-              </label>
-              <label class="flex items-center gap-2">
-                <input
-                  type="radio"
-                  name="bg-source"
-                  :checked="background.settings.source === 'unsplash'"
-                  @change="background.setSource('unsplash')"
-                /> Unsplash
-              </label>
-              <label class="flex items-center gap-2">
-                <input
-                  type="radio"
-                  name="bg-source"
-                  :checked="background.settings.source === 'custom'"
-                  @change="background.setSource('custom')"
-                /> Custom uploads
-              </label>
+            <!--
+              Deliberately not native <input type="radio"> here: those self-toggle
+              their checked state on click regardless of app state, so when
+              setSource('unsplash') is rejected (permission denied) the radio
+              UI and the real source silently desync. These buttons are fully
+              Vue-controlled, so the displayed selection can never drift from
+              background.settings.source.
+            -->
+            <div class="space-y-1" role="radiogroup" aria-label="Background source">
+              <button
+                v-for="option in SOURCE_OPTIONS"
+                :key="option.value"
+                type="button"
+                role="radio"
+                :aria-checked="background.settings.source === option.value"
+                class="flex w-full items-center gap-2 rounded px-1 py-0.5 text-left hover:bg-white/5"
+                @click="background.setSource(option.value)"
+              >
+                <span
+                  class="flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full border"
+                  :class="background.settings.source === option.value ? 'border-white' : 'border-white/40'"
+                >
+                  <span v-if="background.settings.source === option.value" class="h-1.5 w-1.5 rounded-full bg-white" />
+                </span>
+                {{ option.label }}
+              </button>
             </div>
             <p v-if="background.settings.source === 'local' && !background.hasLocalPhotos" class="mt-1 text-xs text-amber-300">
               No photos in src/assets/backgrounds yet — showing placeholder gradients until you add some.
+            </p>
+            <p v-if="background.unsplashError && background.settings.source !== 'unsplash'" class="mt-1 text-xs text-rose-300">
+              {{ background.unsplashError }}
             </p>
           </div>
 
