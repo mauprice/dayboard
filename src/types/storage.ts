@@ -2,11 +2,15 @@ export const SETTINGS_SCHEMA_VERSION = 1 as const;
 export const ONBOARDING_SCHEMA_VERSION = 1 as const;
 export const FOCUS_SCHEMA_VERSION = 2 as const;
 export const TODO_SCHEMA_VERSION = 1 as const;
+export const WEATHER_SCHEMA_VERSION = 1 as const;
+export const LINKS_SCHEMA_VERSION = 1 as const;
 
 export const MAX_FOCUS_HISTORY = 60;
 
 export type ClockFormat = '12h' | '24h';
 export type RotationInterval = 'tab' | 'hourly' | 'daily';
+export type QuoteMode = 'daily' | 'tab';
+export type SearchEngine = 'google' | 'bing' | 'duckduckgo' | 'brave' | 'custom';
 
 export interface SettingsData {
   schemaVersion: typeof SETTINGS_SCHEMA_VERSION;
@@ -14,6 +18,10 @@ export interface SettingsData {
   clockFormat: ClockFormat;
   showSeconds: boolean;
   rotationInterval: RotationInterval;
+  quoteMode: QuoteMode;
+  searchEngine: SearchEngine;
+  /** Used when searchEngine === 'custom'; must contain a literal %s placeholder. */
+  customSearchTemplate: string;
 }
 
 export interface OnboardingData {
@@ -57,12 +65,56 @@ export interface TodoData {
   autoClearCompletedAfterDays: number | null;
 }
 
+export interface WeatherLocation {
+  label: string;
+  latitude: number;
+  longitude: number;
+}
+
+export interface WeatherSettingsData {
+  schemaVersion: typeof WEATHER_SCHEMA_VERSION;
+  mode: 'unset' | 'auto' | 'manual';
+  location: WeatherLocation | null;
+  units: 'C' | 'F';
+}
+
+export interface LinkItem {
+  id: string;
+  label: string;
+  url: string;
+}
+
+export interface LinksData {
+  schemaVersion: typeof LINKS_SCHEMA_VERSION;
+  links: LinkItem[];
+}
+
 export const DEFAULT_SETTINGS: SettingsData = {
   schemaVersion: SETTINGS_SCHEMA_VERSION,
   name: '',
   clockFormat: '24h',
   showSeconds: false,
   rotationInterval: 'tab',
+  quoteMode: 'daily',
+  searchEngine: 'google',
+  customSearchTemplate: '',
+};
+
+export const DEFAULT_WEATHER_SETTINGS: WeatherSettingsData = {
+  schemaVersion: WEATHER_SCHEMA_VERSION,
+  mode: 'unset',
+  location: null,
+  units: 'C',
+};
+
+export const DEFAULT_LINKS: LinksData = {
+  schemaVersion: LINKS_SCHEMA_VERSION,
+  links: [
+    { id: 'gmail', label: 'Gmail', url: 'https://mail.google.com/' },
+    { id: 'youtube', label: 'YouTube', url: 'https://www.youtube.com/' },
+    { id: 'calendar', label: 'Calendar', url: 'https://calendar.google.com/' },
+    { id: 'drive', label: 'Drive', url: 'https://drive.google.com/' },
+  ],
 };
 
 export const DEFAULT_ONBOARDING: OnboardingData = {
@@ -135,5 +187,18 @@ export function migrateTodos(raw: unknown): TodoData {
     lists: Array.isArray(data.lists) && data.lists.length > 0 ? data.lists : DEFAULT_TODO_DATA.lists,
     activeListId: data.activeListId ?? DEFAULT_TODO_DATA.activeListId,
     autoClearCompletedAfterDays: data.autoClearCompletedAfterDays ?? null,
+  };
+}
+
+export function migrateWeatherSettings(raw: unknown): WeatherSettingsData {
+  const data = (raw ?? {}) as Partial<WeatherSettingsData>;
+  return { ...DEFAULT_WEATHER_SETTINGS, ...data, schemaVersion: WEATHER_SCHEMA_VERSION };
+}
+
+export function migrateLinks(raw: unknown): LinksData {
+  const data = (raw ?? {}) as Partial<LinksData>;
+  return {
+    schemaVersion: LINKS_SCHEMA_VERSION,
+    links: Array.isArray(data.links) ? data.links : DEFAULT_LINKS.links,
   };
 }

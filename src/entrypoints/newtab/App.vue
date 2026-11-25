@@ -4,6 +4,10 @@ import Background from '@/components/Background.vue';
 import Clock from '@/components/Clock.vue';
 import Greeting from '@/components/Greeting.vue';
 import Focus from '@/components/Focus.vue';
+import Quote from '@/components/Quote.vue';
+import Weather from '@/components/Weather.vue';
+import Search from '@/components/Search.vue';
+import Links from '@/components/Links.vue';
 import TodoPanel from '@/components/TodoPanel.vue';
 import Onboarding from '@/components/Onboarding.vue';
 import { useOnboardingStore } from '@/stores/onboarding';
@@ -24,11 +28,27 @@ watch(today, (value) => void runDailyRollover(value));
 <template>
   <main class="relative flex h-screen w-screen flex-col items-center justify-center gap-6 overflow-hidden">
     <Background />
+
+    <div class="fixed left-4 top-4 z-10">
+      <Links />
+    </div>
+    <div class="fixed left-1/2 top-4 z-10 w-full max-w-md -translate-x-1/2 px-4">
+      <Search />
+    </div>
+    <div class="fixed right-4 top-4 z-10">
+      <Weather />
+    </div>
+
     <div class="relative z-10 flex flex-col items-center gap-4">
       <Clock />
       <Greeting />
       <Focus />
     </div>
+
+    <div class="fixed bottom-4 left-1/2 z-10 -translate-x-1/2">
+      <Quote />
+    </div>
+
     <TodoPanel />
     <Onboarding v-if="showOnboarding" />
   </main>
