@@ -1,6 +1,9 @@
 export const SETTINGS_SCHEMA_VERSION = 1 as const;
 export const ONBOARDING_SCHEMA_VERSION = 1 as const;
-export const FOCUS_SCHEMA_VERSION = 1 as const;
+export const FOCUS_SCHEMA_VERSION = 2 as const;
+export const TODO_SCHEMA_VERSION = 1 as const;
+
+export const MAX_FOCUS_HISTORY = 60;
 
 export type ClockFormat = '12h' | '24h';
 export type RotationInterval = 'tab' | 'hourly' | 'daily';
@@ -18,12 +21,40 @@ export interface OnboardingData {
   completed: boolean;
 }
 
-export interface FocusData {
-  schemaVersion: typeof FOCUS_SCHEMA_VERSION;
+export interface FocusEntry {
   /** Local YYYY-MM-DD the focus text was set for. */
   date: string;
   text: string;
   completed: boolean;
+}
+
+export interface FocusData {
+  schemaVersion: typeof FOCUS_SCHEMA_VERSION;
+  today: FocusEntry;
+  /** Most recent first, capped to MAX_FOCUS_HISTORY. */
+  history: FocusEntry[];
+}
+
+export interface TodoItem {
+  id: string;
+  text: string;
+  completed: boolean;
+  /** Local YYYY-MM-DD the item was completed; null while incomplete. Drives auto-clear. */
+  completedAt: string | null;
+}
+
+export interface TodoList {
+  id: string;
+  name: string;
+  items: TodoItem[];
+}
+
+export interface TodoData {
+  schemaVersion: typeof TODO_SCHEMA_VERSION;
+  lists: TodoList[];
+  activeListId: string;
+  /** Auto-delete completed items after N days; null disables it. */
+  autoClearCompletedAfterDays: number | null;
 }
 
 export const DEFAULT_SETTINGS: SettingsData = {
@@ -39,16 +70,26 @@ export const DEFAULT_ONBOARDING: OnboardingData = {
   completed: false,
 };
 
+const DEFAULT_FOCUS_ENTRY: FocusEntry = { date: '', text: '', completed: false };
+
 export const DEFAULT_FOCUS: FocusData = {
   schemaVersion: FOCUS_SCHEMA_VERSION,
-  date: '',
-  text: '',
-  completed: false,
+  today: { ...DEFAULT_FOCUS_ENTRY },
+  history: [],
+};
+
+export const DEFAULT_TODO_DATA: TodoData = {
+  schemaVersion: TODO_SCHEMA_VERSION,
+  lists: [
+    { id: 'today', name: 'Today', items: [] },
+    { id: 'inbox', name: 'Inbox', items: [] },
+  ],
+  activeListId: 'today',
+  autoClearCompletedAfterDays: null,
 };
 
 // Each migrate fn upgrades whatever shape was previously stored to the
 // current one, backfilling fields older schema versions didn't have.
-// Only v1 exists today; future bumps add a case per version here.
 export function migrateSettings(raw: unknown): SettingsData {
   const data = (raw ?? {}) as Partial<SettingsData>;
   return { ...DEFAULT_SETTINGS, ...data, schemaVersion: SETTINGS_SCHEMA_VERSION };
@@ -60,6 +101,39 @@ export function migrateOnboarding(raw: unknown): OnboardingData {
 }
 
 export function migrateFocus(raw: unknown): FocusData {
-  const data = (raw ?? {}) as Partial<FocusData>;
-  return { ...DEFAULT_FOCUS, ...data, schemaVersion: FOCUS_SCHEMA_VERSION };
+  const data = (raw ?? {}) as Record<string, unknown>;
+
+  if (data.schemaVersion === FOCUS_SCHEMA_VERSION && data.today) {
+    const partial = data as Partial<FocusData>;
+    return {
+      schemaVersion: FOCUS_SCHEMA_VERSION,
+      today: { ...DEFAULT_FOCUS_ENTRY, ...partial.today },
+      history: Array.isArray(partial.history) ? partial.history : [],
+    };
+  }
+
+  // v1 shape stored the entry flat: { schemaVersion: 1, date, text, completed }.
+  if (typeof data.date === 'string' || typeof data.text === 'string') {
+    return {
+      schemaVersion: FOCUS_SCHEMA_VERSION,
+      today: {
+        date: typeof data.date === 'string' ? data.date : '',
+        text: typeof data.text === 'string' ? data.text : '',
+        completed: Boolean(data.completed),
+      },
+      history: [],
+    };
+  }
+
+  return { ...DEFAULT_FOCUS, today: { ...DEFAULT_FOCUS_ENTRY } };
+}
+
+export function migrateTodos(raw: unknown): TodoData {
+  const data = (raw ?? {}) as Partial<TodoData>;
+  return {
+    schemaVersion: TODO_SCHEMA_VERSION,
+    lists: Array.isArray(data.lists) && data.lists.length > 0 ? data.lists : DEFAULT_TODO_DATA.lists,
+    activeListId: data.activeListId ?? DEFAULT_TODO_DATA.activeListId,
+    autoClearCompletedAfterDays: data.autoClearCompletedAfterDays ?? null,
+  };
 }

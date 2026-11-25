@@ -36,4 +36,4 @@ pnpm format     # Prettier (writes)
 
 ## Status
 
-Phase 2 (core visual) complete — see §8 of [BRIEF.md](BRIEF.md) for the full phase plan.
+Phase 3 (focus + to-do) complete — see §8 of [BRIEF.md](BRIEF.md) for the full phase plan.

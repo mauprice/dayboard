@@ -8,7 +8,10 @@ export default defineConfig({
   manifest: {
     name: 'Dayboard',
     description: 'A calm, privacy-first new-tab dashboard.',
-    permissions: ['storage'],
+    // 'alarms' isn't in BRIEF.md §6's list but is required for the midnight-reset
+    // alarm §7/§8 specify for background.ts — no user-visible permission prompt,
+    // Chrome/Firefox don't surface 'alarms' in the install dialog.
+    permissions: ['storage', 'alarms'],
     browser_specific_settings: {
       gecko: {
         // TODO(maurice): replace with a real identifier before AMO submission.
