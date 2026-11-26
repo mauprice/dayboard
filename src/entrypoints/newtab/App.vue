@@ -41,17 +41,17 @@ watch(today, (value) => void runDailyRollover(value));
     <div v-if="widgets.links" class="fixed left-4 top-4 z-10">
       <Links />
     </div>
-    <div v-if="widgets.search" class="fixed left-1/2 top-4 z-10 w-full max-w-md -translate-x-1/2 px-4">
-      <Search />
-    </div>
     <div v-if="widgets.weather" class="fixed right-4 top-4 z-10">
       <Weather />
     </div>
 
-    <div class="relative z-10 flex flex-col items-center gap-4">
+    <div class="relative z-10 flex flex-col items-center gap-6">
       <Clock v-if="widgets.clock" />
       <Greeting v-if="widgets.greeting" />
       <Focus v-if="widgets.focus" />
+      <div v-if="widgets.search" class="w-full max-w-md px-4">
+        <Search />
+      </div>
     </div>
 
     <div v-if="widgets.quote" class="fixed bottom-4 left-1/2 z-10 -translate-x-1/2">

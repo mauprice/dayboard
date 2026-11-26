@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { ref, watch } from 'vue';
 import { useWeatherStore } from '@/stores/weather';
 import type { WeatherLocation } from '@/types/storage';
 
@@ -9,9 +9,16 @@ const citySearch = ref('');
 const cityResults = ref<WeatherLocation[]>([]);
 const searching = ref(false);
 
-onMounted(() => {
-  if (weather.settings.location) void weather.refresh();
-});
+// weather.settings loads from browser.storage asynchronously, so at mount
+// time weather.settings.location is still the `null` default — wait for
+// `ready` rather than checking once in onMounted.
+watch(
+  () => weather.ready,
+  (isReady) => {
+    if (isReady && weather.settings.location) void weather.refresh();
+  },
+  { immediate: true },
+);
 
 function weatherIcon(code: number): string {
   if (code === 0) return '☀️';
@@ -49,16 +56,18 @@ function pickCity(location: WeatherLocation) {
     <button
       v-if="weather.settings.location"
       type="button"
-      class="flex items-center gap-2 rounded-lg bg-black/20 px-3 py-2 backdrop-blur-sm hover:bg-black/30"
+      class="flex flex-col items-center gap-0.5 rounded-lg px-3 py-2 text-white/90 drop-shadow-md transition hover:bg-white/10"
       @click="expanded = !expanded"
     >
-      <span class="text-xl leading-none">{{ weather.snapshot ? weatherIcon(weather.snapshot.weatherCode) : '…' }}</span>
-      <span class="text-sm">
-        <span v-if="weather.snapshot">{{ toDisplayTemp(weather.snapshot.currentTempC) }}</span>
-        <span v-else-if="weather.loading">Loading…</span>
-        <span v-else>—</span>
-        <span class="block text-xs text-white/60">{{ weather.settings.location.label }}</span>
+      <span class="flex items-center gap-1.5">
+        <span class="text-xl leading-none">{{ weather.snapshot ? weatherIcon(weather.snapshot.weatherCode) : '…' }}</span>
+        <span class="text-lg font-medium">
+          <span v-if="weather.snapshot">{{ toDisplayTemp(weather.snapshot.currentTempC) }}</span>
+          <span v-else-if="weather.loading">Loading…</span>
+          <span v-else>—</span>
+        </span>
       </span>
+      <span class="text-[11px] text-white/60">{{ weather.settings.location.label }}</span>
     </button>
 
     <div v-else class="w-56 rounded-lg bg-black/30 p-3 text-left backdrop-blur-sm">

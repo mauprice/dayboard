@@ -16,7 +16,9 @@ const background = useBackgroundStore();
       class="absolute inset-0 bg-cover bg-center transition-opacity duration-700 ease-out"
       :style="{ backgroundImage: `url(${background.active.imageUrl})` }"
     />
-    <div class="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-black/35" />
+    <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-black/5 to-black/25" />
+    <div class="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-black/45 to-transparent" />
+    <div class="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/45 to-transparent" />
 
     <div class="absolute bottom-16 left-4 flex items-center gap-2 opacity-0 transition-opacity hover:opacity-100 focus-within:opacity-100">
       <button

@@ -48,12 +48,25 @@ async function submit() {
 </script>
 
 <template>
-  <form class="w-full max-w-md" @submit.prevent="submit">
+  <form class="relative w-full max-w-md" @submit.prevent="submit">
     <input
       v-model="query"
       type="text"
       placeholder="Search the web…"
-      class="w-full rounded-full bg-black/20 px-4 py-2 text-sm text-white placeholder-white/50 outline-none ring-1 ring-white/20 backdrop-blur-sm focus:ring-white/60"
+      class="w-full rounded-full bg-white/10 py-3 pl-10 pr-4 text-sm text-white placeholder-white/50 outline-none ring-1 ring-white/20 backdrop-blur-sm focus:ring-white/60"
     />
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.5"
+      class="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/60"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
+      />
+    </svg>
   </form>
 </template>

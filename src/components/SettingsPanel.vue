@@ -178,7 +178,7 @@ const version = browser.runtime.getManifest().version;
   <div class="fixed bottom-4 left-4 z-30">
     <button
       type="button"
-      class="flex h-10 w-10 items-center justify-center rounded-full bg-black/30 text-white backdrop-blur-sm hover:bg-black/50"
+      class="flex h-9 w-9 items-center justify-center rounded-full text-white/80 drop-shadow-md transition hover:bg-white/10 hover:text-white"
       aria-label="Settings"
       @click="open = !open"
     >⚙</button>

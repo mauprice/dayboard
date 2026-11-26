@@ -31,7 +31,7 @@ function commit() {
 </script>
 
 <template>
-  <div class="text-center text-xl drop-shadow" :class="isLight ? 'text-white/90' : 'text-neutral-900/90'">
+  <div class="text-center text-2xl font-light drop-shadow" :class="isLight ? 'text-white/90' : 'text-neutral-900/90'">
     <input
       v-if="editing"
       v-model="draft"
@@ -48,13 +48,13 @@ function commit() {
       <button
         v-if="name"
         type="button"
-        class="underline decoration-dotted underline-offset-4 hover:decoration-solid"
+        class="underline-offset-4 hover:underline"
         @click="startEdit"
       >{{ name }}</button>
       <button
         v-else
         type="button"
-        class="underline decoration-dotted underline-offset-4 hover:decoration-solid"
+        class="underline-offset-4 hover:underline"
         @click="startEdit"
       >— add your name</button>.
     </span>

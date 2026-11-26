@@ -21,13 +21,13 @@ const timeParts = computed(() => {
     hours = hours % 12 || 12;
   }
 
-  return { hours: String(hours).padStart(2, '0'), minutes, seconds, suffix };
+  return { hours: is24h ? String(hours).padStart(2, '0') : String(hours), minutes, seconds, suffix };
 });
 </script>
 
 <template>
   <div
-    class="flex items-baseline justify-center gap-2 text-[clamp(3rem,10vw,8rem)] font-light leading-none drop-shadow-lg"
+    class="flex items-baseline justify-center gap-2 text-[clamp(3rem,10vw,8rem)] font-extralight leading-none tracking-tight drop-shadow-md"
     :class="isLight ? 'text-white' : 'text-neutral-900'"
   >
     <span>{{ timeParts.hours }}:{{ timeParts.minutes }}</span>

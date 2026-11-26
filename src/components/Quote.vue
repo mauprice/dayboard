@@ -28,8 +28,8 @@ const quote = computed(() => {
 </script>
 
 <template>
-  <figure class="max-w-lg px-4 text-center" :class="isLight ? 'text-white/80' : 'text-neutral-900/80'">
-    <blockquote class="text-sm italic drop-shadow">"{{ quote.text }}"</blockquote>
+  <figure class="max-w-lg px-4 text-center drop-shadow" :class="isLight ? 'text-white/80' : 'text-neutral-900/80'">
+    <blockquote class="text-sm font-light italic">{{ quote.text }}</blockquote>
     <figcaption class="mt-1 text-xs opacity-70">— {{ quote.author }}</figcaption>
   </figure>
 </template>

@@ -131,8 +131,17 @@ function onDrop(listId: string, index: number) {
 
     <button
       type="button"
-      class="flex h-12 w-12 items-center justify-center rounded-full bg-white/90 text-lg font-medium text-neutral-900 shadow-lg hover:bg-white"
+      class="flex flex-col items-center gap-1 rounded-lg px-3 py-2 text-white/90 transition hover:bg-white/10"
       @click="open = !open"
-    >{{ open ? '✕' : '☰' }}</button>
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="h-5 w-5 drop-shadow-md">
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M4.5 6.75h.008M4.5 12h.008M4.5 17.25h.008M8.25 6.75h11.25M8.25 12h11.25M8.25 17.25h11.25"
+        />
+      </svg>
+      <span class="text-[11px] font-medium tracking-wide drop-shadow-md">{{ open ? 'Close' : 'Tasks' }}</span>
+    </button>
   </div>
 </template>
