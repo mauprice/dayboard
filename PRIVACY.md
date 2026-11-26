@@ -1,3 +1,7 @@
+---
+title: Dayboard Privacy Policy
+---
+
 # Dayboard Privacy Policy
 
 _Last updated: 2026-11-26_
